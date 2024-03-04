@@ -4,6 +4,7 @@ import telebot
 import requests
 import base64
 from linkedin_scrapper import linkedin_job_alert, linkedin_list_jobs
+from codeforces_scrapper import list_contests
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -39,7 +40,7 @@ class TelegramBot():
         @self.bot.message_handler(commands=['gmail'])
         def gmail_handler(message):
             print('Doing Gmail stuff...')
-            args = message.text.split(' ')[1:]
+            args = message.text.lower().split(' ')[1:]
             if len(args) < 1:
                 self.bot.reply_to(
                     message, 'I have integrated your Gmail to this chat, sir. Please tell me what you want to do with your mails.')
@@ -51,7 +52,7 @@ class TelegramBot():
                         self.labels = [label['name'] for label in self.labels]
                         self.bot.reply_to(
                             message, 'Here is the list of your labels, sir.\n' + '\n'.join(self.labels))
-                    case 'jobs':
+                    case 'jobs' | 'j' | 'ja':
                         jobs = self.gmail_service.users().messages().list(userId='me',
                                                                           q='is:unread from:jobalerts-noreply@linkedin.com').execute().get('messages', [])
                         job_items = []
@@ -67,37 +68,23 @@ class TelegramBot():
                                 message, 'You have no unread jobs, sir.')
 
                         linkedin_list_jobs(self.bot, message, job_items)
+                    case _:
+                        self.bot.reply_to(
+                            message, 'Sorry sir, I don\'t know that command is. Please try again, sir.')
 
-                        # rep, rf = '', 0
-                        # count = 0
-                        # for job in job_items:
-                        #     count += 1
-                        #     text, r = '', 0
-                        #     link = job[-1][10:]
-                        #     # text += f'{job[0]}\n'
-                        #     text += f'<a href=\'{link}\'>{job[0]}</a>\n'
-                        #     text += f'<strong>{job[1]}</strong>\n'
-                        #     # r += len(job[0]) + len(job[1]) + 2
-                        #     for i in job[2:-1]:
-                        #         text += f'{i}\n'
-                        #         # r += len(i) + 1
-                        #     # debug('text === ', text)
-                        #     # if rf + r > 4000:
-                        #         # self.bot.send_message(
-                        #         # message.chat.id, rep, parse_mode='HTML', disable_web_page_preview=True)
-                        #         # rep = ''
-                        #     rep += text
-                        #     if count == 3:
-                        #         self.bot.send_message(
-                        #             message.chat.id, rep, parse_mode='HTML', disable_web_page_preview=True)
-                        #         rep = ''
-                        #         count = 0
-                        #     # rf += r
-
-                        # if rep != '':
-                        #     self.bot.send_message(
-                        #         message.chat.id, rep, parse_mode='HTML', disable_web_page_preview=True)
-                        #     rep = ''
+        @self.bot.message_handler(commands=['cf', 'codeforces'])
+        def codeforces_handler(message):
+            args = message.text.lower().split(' ')[1:]
+            if len(args) < 1:
+                self.bot.reply_to(
+                    message, 'I have integrated CodeForces to this chat, sir. Please tell me what to do.')
+            else:
+                match args[0]:
+                    case 'list' | 'l':
+                        list_contests(
+                            message, self.bot, ended='ended' in args, gym='gym' in args)
+                    case 'p' | 'profile':
+                        pass
                     case _:
                         self.bot.reply_to(
                             message, 'Sorry sir, I don\'t know that command is. Please try again, sir.')
@@ -105,30 +92,6 @@ class TelegramBot():
         @self.bot.message_handler(commands=['test'])
         def test(message):
             pass
-
-        def read_linkedin_job_alert(jbs):
-            return
-            message = self.gmail_service.users().messages().get(
-                userId='me', id=jobs['id']).execute()
-            data = message['payload']['parts'][0]['body']['data']
-            data = base64.urlsafe_b64decode(data).decode('utf-8').split('\n')
-            # print(data)
-            jobs = [[]]
-            next = 0
-            if data != None:
-                for i in range(4, len(data)):
-                    if next > 0:
-                        next -= 1
-                        continue
-                    elif data[i] == '':
-                        break
-                    jobs[-1].append(data[i])
-                    if data[i].startswith('View job'):
-                        next = 4
-                        jobs.append([])
-            jobs.pop()
-            # debug([job[0] for job in jobs])
-            return jobs
 
     def gmail_init(self):
         # The file token.json stores the user's access and refresh tokens, and is
