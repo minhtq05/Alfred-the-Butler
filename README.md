@@ -1,6 +1,8 @@
 # Alfred-the-Butler
 
-Meet Alfred, your digital butler with a knack for tech and a sense of humor sharper than a compiler error message. As a Computer Science student or Software Engineer, Alfred is your go-to guy for automating those pesky daily tasks.
+## Description
+
+Meet Alfred, your **Telegram** butler with a knack for tech and a sense of humor sharper than a compiler error message. As a Computer Science student or Software Engineer, Alfred is your go-to guy for automating those pesky daily tasks.
 
 LinkedIn job searches giving you a headache? Alfred’s got your back. He’ll sift through the job postings faster than you can say “recursive function”.
 
@@ -14,3 +16,27 @@ And the best part? You can chat with him like a boss. After all, he’s not just
 
 So, why wait? Give Alfred a whirl and let the fun begin!
 
+## Usage
+
+To use Alfred, you first need to have Telegram installed on your machine.
+Next, to wake Alfred up, you only have to call him with a simple Python command:
+
+```bash
+$ python3 -m alfred.py
+```
+
+Then, Alfred will start initializing its components, including Gmail, LeetCode, Codeforces, etc.
+
+It will ask you for several permissions. But don't worry, it will be fast.
+
+Then Alfred is ready to serve you.
+
+## Commands
+
+At the current moments, all the working commands are:
+```
+/start or /hello
+/gmail with possible arguments j or jobs
+/cf or /codeforces with possible arguments: l or list, p or profile
+/test
+```
